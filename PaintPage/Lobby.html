@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Lobby Page</title>
+        <script src="//code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            $(document).ready(function () {
+                // Ajax를 수행
+                $.getJSON('/room', function (data) {
+                    // 반복을 수행
+                    $.each(data, function (index, item) {
+                        // 문서 객체를 추가
+                        $('<button></button>').attr({
+                            'data-room': item
+                        }).text('Room Name: ' + item).appendTo('#container');
+                    });
+                });
+                
+                // 소켓 처리를 수행
+                var socket = io.connect();
+                socket.on('create_room', function (data) {
+                    // 문서 객체를 추가
+                    $('<button></button>').attr({
+                        'data-room': data
+                    }).text('Room Number:' + data).appendTo('#container');
+                });
+                
+                // 이벤트를 연결
+                $('#container').on('click', 'button', function () {
+                    // 변수를 선언
+                    var room = $(this).attr('data-room');
+                    
+                    // 페이지를 이동
+                    location = '/canvas/' + room;
+                });
+                
+                $('body > button').click(function () {
+                    // 변수를 선언
+                    var room = $('#room').val();
+                    
+                    // 소켓 이벤트를 발생
+                    socket.emit('create_room', room);
+                    
+                    // 페이지를 이동
+                    location = '/canvas/' + room;
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <h1>Rint Real Time Canvas</h1>
+        <p>Connect Web Server With Socket.io</p>
+        <span>ROOM: </span>
+        <input id="room" />
+        <button>CREATE ROOM</button>
+        <hr />
+        <div id="container">
+        
+        </div>
+    </body>
+</html>
